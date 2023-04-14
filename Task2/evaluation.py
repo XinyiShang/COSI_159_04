@@ -4,7 +4,7 @@ import pandas as pd
 import pandas as pd
 
 # Load FairFace validation dataset
-df_val = pd.read_csv('fairface_label_val.cs')
+df_val = pd.read_csv('fairface_label_val.csv')
 
 # Define function to convert age to age range
 def age_to_range(age):
@@ -28,7 +28,7 @@ def age_to_range(age):
         return "more than 70"
 
 # Define tolerance interval
-tolerance = 2
+#tolerance = 2
 
 # Load predicted ages from FairFace validation set
 df_predicted = pd.read_csv('fairface_val_predicted.csv')

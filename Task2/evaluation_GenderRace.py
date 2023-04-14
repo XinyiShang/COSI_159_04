@@ -1,7 +1,11 @@
 import pandas as pd
+import numpy as np
 
 # Load FairFace validation dataset
-df_val = pd.read_csv('fairface_val.csv')
+df_val = pd.read_csv('fairface_label_val.csv')
+
+# Load predicted ages from FairFace validation set
+df_predicted = pd.read_csv('fairface_val_predicted.csv')
 
 # Define function to convert age to age range
 def age_to_range(age):
@@ -24,26 +28,79 @@ def age_to_range(age):
     else:
         return "more than 70"
 
-# Define tolerance interval
-tolerance = 2
-
-# Load predicted ages from FairFace validation set
-df_predicted = pd.read_csv('fairface_val_predicted.csv')
-predicted_ages = df_predicted['age'].tolist()
+# Convert actual ages to age ranges
+df_val['age_range'] = df_val['age']
 
 # Convert predicted ages to age ranges
-predicted_age_ranges = [age_to_range(round(age)) for age in predicted_ages]
+df_predicted['predicted_age_range'] = df_predicted['predicted_age'].apply(age_to_range)
 
-# Calculate accuracy for each gender and race category
-categories = ['gender', 'race']
-for category in categories:
-    groupby_col = f'{category}_idx'
-    grouped = df_val.groupby(groupby_col)
-    for group_name, group_df in grouped:
-        group_size = len(group_df)
-        group_num_correct = 0
-        for i in range(group_size):
-            if group_df['age_range'].iloc[i] == predicted_age_ranges[group_df.index[i]]:
-                group_num_correct += 1
-        group_accuracy = group_num_correct / group_size
-        print(f"Accuracy for {category} '{group_name}': {group_accuracy}")
+# Define tolerance interval
+#tolerance = 2
+df_val['age_prediction_correct'] = 0
+
+
+# Add age prediction accuracy to validation dataset
+for i in range(len(df_val)):
+    actual_age_range = df_val['age'][i]
+    predicted_age_range = df_predicted['predicted_age_range'][i]
+    if actual_age_range == predicted_age_range:
+        df_val['age_prediction_correct'][i] = 1
+    else:
+        df_val['age_prediction_correct'][i] = 0
+
+# Group data by gender and race and calculate accuracy for each group
+groups = df_val.groupby(['gender', 'race'])
+for group, data in groups:
+    gender, race = group
+    num_correct = data['age_prediction_correct'].sum()
+    num_total = len(data)
+    accuracy = num_correct / num_total
+    print(f"Gender: {gender}, Race: {race}, Accuracy: {accuracy}")
+
+"""
+# Calculate accuracy by race
+race_groups = df_val.groupby('race')
+for race, data in race_groups:
+    num_correct = data['age_prediction_correct'].sum()
+    num_total = len(data)
+    accuracy = num_correct / num_total
+    print(f"Race: {race}, Accuracy: {accuracy}")
+
+# Calculate accuracy by gender
+gender_groups = df_val.groupby('gender')
+for gender, data in gender_groups:
+    num_correct = data['age_prediction_correct'].sum()
+    num_total = len(data)
+    accuracy = num_correct / num_total
+    print(f"Gender: {gender}, Accuracy: {accuracy}")
+"""
+# Calculate accuracy by race and standard deviation of ages for each race
+accuracy_race= []
+race_groups = df_val.groupby('race')
+for race, data in race_groups:
+    num_correct = data['age_prediction_correct'].sum()
+    num_total = len(data)
+    accuracy = num_correct / num_total
+    #std_age = df_predicted['predicted_age'].std()
+    accuracy_race.append(accuracy)
+    print(f"Race: {race}, Accuracy: {accuracy}")
+
+std_dev = np.std(accuracy_race)
+
+print(f"Standard deviation across gender: {std_dev}")
+
+
+# Calculate accuracy by gender and standard deviation of ages for each gender
+accuracy_gender = []
+gender_groups = df_val.groupby('gender')
+for gender, data in gender_groups:
+    num_correct = data['age_prediction_correct'].sum()
+    num_total = len(data)
+    accuracy = num_correct / num_total
+    accuracy_gender.append(accuracy)
+    #std_age = df_predicted['predicted_age'].std()
+    print(f"Gender: {gender}, Accuracy: {accuracy}")
+    
+std_dev = np.std(accuracy_gender)
+
+print(f"Standard deviation across gender: {std_dev}")
