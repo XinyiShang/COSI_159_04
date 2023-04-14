@@ -27,4 +27,5 @@ https://github.com/XinyiShang/COSI_159_04/blob/ce175483ca0d29f8445d94088bd696a0c
 
 ## References
 [1]K. Ucla, J. Jungseock, and Ucla, “FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age for Bias Measurement and Mitigation.” Available: https://openaccess.thecvf.com/content/WACV2021/papers/Karkkainen_FairFace_Face_Attribute_Dataset_for_Balanced_Race_Gender_and_Age_WACV_2021_paper.pdf
+
 [2]S. I. Serengil and A. Ozpinar, “LightFace: A Hybrid Deep Face Recognition Framework,” IEEE Xplore, Oct. 01, 2020. https://ieeexplore.ieee.org/document/9259802
